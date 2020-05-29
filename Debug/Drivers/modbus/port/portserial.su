@@ -1,0 +1,7 @@
+portserial.c:39:1:vMBPortSerialEnable	16	static
+portserial.c:61:6:vMBPortSerialEnableTC	0	static
+portserial.c:68:1:xMBPortSerialInit	0	static
+portserial.c:116:1:xMBPortSerialPutByte	0	static
+portserial.c:126:1:xMBPortSerialGetByte	0	static
+portserial.c:150:6:prvvUARTTxReadyISR	0	static
+portserial.c:165:6:prvvUARTRxISR	0	static
