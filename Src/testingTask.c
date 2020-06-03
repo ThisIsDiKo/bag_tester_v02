@@ -41,6 +41,7 @@ void xTestingTask(void *arguments){
 				badPressTicksCounter += 1;
 
 				if (badPressTicksCounter > MAX_BAD_PRESSURE_TICKS){
+					all_led_off();
 					controllerState.state = STEP_ERROR;
 					vTaskDelete(NULL);
 				}
@@ -53,12 +54,16 @@ void xTestingTask(void *arguments){
 
 					//call aligning task
 					if (controllerState.currentStep > 0){
-						xTaskCreate(xAligningTask, "aligning", 400, NULL, 1, NULL);
+						all_led_off();
+						controllerState.state = ALIGNING;
+						xTaskCreate(xAligningTask, "aligning", 400, NULL, 1, &aligninThreadHandle);
 					}
 					else{
+						all_led_off();
 						controllerState.state = TEST_COMPLETE;
 					}
 					//delete curTask
+					testingTreadHandle = NULL;
 					vTaskDelete(NULL);
 				}
 			}

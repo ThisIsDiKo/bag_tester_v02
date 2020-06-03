@@ -36,7 +36,7 @@ void scanBtnsTask(void *arguments){
 		}
 
 		if(HAL_GPIO_ReadPin(BTN_1_PORT, BTN_1_PIN) != prevBtn1State){
-			vTaskDelay(2);
+			vTaskDelay(1);
 			if(HAL_GPIO_ReadPin(BTN_1_PORT, BTN_1_PIN) != prevBtn1State){
 				prevBtn1State = HAL_GPIO_ReadPin(BTN_1_PORT, BTN_1_PIN);
 
@@ -44,6 +44,7 @@ void scanBtnsTask(void *arguments){
 					switch(controllerState.state){
 						case IDLE:{
 							if (controllerState.sensorData == 0){
+								all_led_off();
 								controllerState.state = TEST_ERROR;
 								break;
 							}
@@ -54,9 +55,9 @@ void scanBtnsTask(void *arguments){
 
 							if (controllerState.currentStep > 0){
 								all_led_off();
-								controllerState.state = TESTING;
+								controllerState.state = ALIGNING;
 								//create aligning task
-								xTaskCreate(xAligningTask, "aligning", 400, NULL, 1, NULL);
+								xTaskCreate(xAligningTask, "aligning", 400, NULL, 1, &aligninThreadHandle);
 							}
 							else{
 								all_led_off();
@@ -71,6 +72,12 @@ void scanBtnsTask(void *arguments){
 							break;
 						}
 						case TEST_COMPLETE:{
+							all_led_off();
+							controllerState.state = IDLE;
+							controllerState.currentStep = 0;
+							break;
+						}
+						case ALIGNING:{
 							all_led_off();
 							controllerState.state = IDLE;
 							controllerState.currentStep = 0;
@@ -96,7 +103,7 @@ void scanBtnsTask(void *arguments){
 			}
 
 		}
-		vTaskDelay(5);
+		vTaskDelay(2);
 	}
 	vTaskDelete(NULL);
 }

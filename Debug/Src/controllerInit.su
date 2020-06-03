@@ -1,6 +1,7 @@
-controllerInit.c:26:9:get_modbus_address	8	static
-controllerInit.c:55:6:controller_init	24	static
-controllerInit.c:139:6:testing_led_blynk	8	static
-controllerInit.c:196:6:step_error_led_blynk	8	static
-controllerInit.c:238:6:idle_led_blynk	8	static
-controllerInit.c:95:6:indicationTask	24	static
+controllerInit.c:29:9:get_modbus_address	8	static
+controllerInit.c:58:6:controller_init	24	static
+controllerInit.c:171:6:testing_led_blynk	8	static
+controllerInit.c:228:6:aligning_led_blynk	8	static
+controllerInit.c:265:6:step_error_led_blynk	8	static
+controllerInit.c:307:6:idle_led_blynk	8	static
+controllerInit.c:123:6:indicationTask	24	static

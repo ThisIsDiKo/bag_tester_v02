@@ -11,6 +11,8 @@
 #include "globals.h"
 #include "structures.h"
 
+#include "flashFunctions.h"
+
 #include "mb.h"
 #include "mbport.h"
 #include "mbutils.h"
@@ -31,10 +33,16 @@
 /* ----------------------- Static variables ---------------------------------*/
 static unsigned char ucRegCoilsBuf[REG_COILS_SIZE / 8];
 
+uint8_t needToWriteFlash = 0;
+
 void xModbusPollTask(void *arguments){
 	for(;;){
 		( void )eMBPoll(  );
 		vTaskDelay(50);
+		if (needToWriteFlash){
+			mWrite_flash();
+			needToWriteFlash = 0;
+		}
 	}
 	vTaskDelete(NULL);
 }
@@ -137,7 +145,7 @@ eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs,
 		            iRegIndex++;
 		            usNRegs--;
 				}
-
+				needToWriteFlash = 1;
 				break;
 			}
 

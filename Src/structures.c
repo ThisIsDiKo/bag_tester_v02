@@ -5,7 +5,6 @@
  *      Author: ADiKo
  */
 #include "structures.h"
-
 /*
  * ------------------
  * |DP G F E D C B A|
@@ -29,3 +28,6 @@ uint8_t digitSegments[12] = {0b00111111,//0
 ControllerState controllerState = {0};
 ControllerTestProgram testProgram = {0};
 TestingParams testingParams = {0};
+
+TaskHandle_t aligninThreadHandle = NULL;
+TaskHandle_t testingTreadHandle = NULL;

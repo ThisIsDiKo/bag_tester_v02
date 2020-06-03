@@ -26,7 +26,7 @@ void all_led_off(void){
 uint8_t calculate_test_params(uint8_t start){
 	uint8_t legalStep = 0;
 	uint8_t i = 0;
-	if (start >= 0 && start < 6){
+	if ((start >= 0) && (start < 5)){
 		for(i = start; i < 5; i++){
 			if (	(testProgram.testPressure[i] > 0) &&
 					(testProgram.testPressure[i] < 120) &&

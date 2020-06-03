@@ -42,8 +42,11 @@ void xAligningTask(void *arguments){
 				//create task
 				testingParams.testStartPressure = controllerState.sensorData;
 				testingParams.timePassed = 0;
-				xTaskCreate(xTestingTask, "testing", 200, NULL, 1, NULL);
+				controllerState.state = TESTING;
+				all_led_off();
+				xTaskCreate(xTestingTask, "testing", 200, NULL, 1, &testingTreadHandle);
 				//delete current task
+				aligninThreadHandle = NULL;
 				vTaskDelete(NULL);
 				continue;
 			}
@@ -106,6 +109,7 @@ void xAligningTask(void *arguments){
 
 			deltaPressure = abs(deltaPressure);
 			if (deltaPressure < PRESSURE_ACCURACY_THRESHOLD && impTime > 1000){
+				all_led_off();
 				controllerState.state = TEST_ERROR;
 				vTaskDelete(NULL);
 			}

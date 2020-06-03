@@ -1,13 +1,14 @@
 #ifndef STRUCTURES_H_
 #define STRUCTURES_H_
 
-#include "stm32f1xx_hal.h"
+#include "globals.h"
 
 typedef enum{
 	IDLE,
 	TEST_COMPLETE,
 	TEST_ERROR,
 	TESTING,
+	ALIGNING,
 	STEP_ERROR,
 } StateMachine;
 
@@ -22,12 +23,14 @@ typedef struct{
 	uint8_t testFailed;
 	uint16_t dataToSend[3];
 	int8_t valveIsOpen;
+
 }ControllerState;
 
 typedef struct{
 	uint16_t testPressure[5];
 	uint16_t testTime[5];
 	uint16_t testDiffPressure[5];
+	uint16_t temp;
 }ControllerTestProgram;
 
 typedef struct{
@@ -42,6 +45,9 @@ extern ControllerState controllerState;
 extern ControllerTestProgram testProgram;
 extern TestingParams testingParams;
 extern uint8_t digitSegments[12];
+
+extern TaskHandle_t aligninThreadHandle;
+extern TaskHandle_t testingTreadHandle;
 
 void all_led_off(void);
 

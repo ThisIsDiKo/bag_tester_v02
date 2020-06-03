@@ -10,6 +10,8 @@
 #include "analogFunctions.h"
 #include "modbusPollTask.h"
 
+#include "flashFunctions.h"
+
 #include "mb.h"
 #include "mbport.h"
 
@@ -19,6 +21,7 @@ extern UART_HandleTypeDef huart1;
 void indicationTask(void *arguments);
 void idle_led_blynk(uint8_t i);
 void testing_led_blynk(uint8_t curStep);
+void aligning_led_blynk(uint8_t curStep);
 void step_error_led_blynk(uint8_t curStep);
 
 xSemaphoreHandle xNewPressureSemaphore;
@@ -64,25 +67,50 @@ void controller_init(){
 
 	vSemaphoreCreateBinary(xNewPressureSemaphore);
 
-	testProgram.testPressure[0] = 21;
-	testProgram.testTime[0] = 5;
-	testProgram.testDiffPressure[0] = 11;
-//
-//	testProgram.testPressure[1] = 42;
-//	testProgram.testTime[1] = 72;
-//	testProgram.testDiffPressure[1] = 22;
-//
-//	testProgram.testPressure[2] = 73;
-//	testProgram.testTime[2] = 23;
-//	testProgram.testDiffPressure[2] = 43;
-//
-//	testProgram.testPressure[3] = 4;
-//	testProgram.testTime[3] = 64;
-//	testProgram.testDiffPressure[3] = 14;
-//
-//	testProgram.testPressure[4] = 25;
-//	testProgram.testTime[4] = 5;
-//	testProgram.testDiffPressure[4] = 15;
+//	testProgram.testPressure[0] = 61;
+//	testProgram.testTime[0] = 5;
+//	testProgram.testDiffPressure[0] = 10;
+////
+//	testProgram.testPressure[1] = 52;
+//	testProgram.testTime[1] = 5;
+//	testProgram.testDiffPressure[1] = 10;
+////
+//	testProgram.testPressure[2] = 43;
+//	testProgram.testTime[2] = 5;
+//	testProgram.testDiffPressure[2] = 10;
+////
+//	testProgram.testPressure[3] = 30;
+//	testProgram.testTime[3] = 5;
+//	testProgram.testDiffPressure[3] = 10;
+////
+//	testProgram.testPressure[4] = 20;
+//	testProgram.testTime[4] = 10;
+//	testProgram.testDiffPressure[4] = 10;
+
+	mRead_flash();
+	if (testProgram.testPressure[0] > 200){
+		testProgram.testPressure[0] = 61;
+		testProgram.testTime[0] = 5;
+		testProgram.testDiffPressure[0] = 10;
+	//
+		testProgram.testPressure[1] = 52;
+		testProgram.testTime[1] = 5;
+		testProgram.testDiffPressure[1] = 10;
+	//
+		testProgram.testPressure[2] = 43;
+		testProgram.testTime[2] = 5;
+		testProgram.testDiffPressure[2] = 10;
+	//
+		testProgram.testPressure[3] = 30;
+		testProgram.testTime[3] = 5;
+		testProgram.testDiffPressure[3] = 10;
+	//
+		testProgram.testPressure[4] = 20;
+		testProgram.testTime[4] = 10;
+		testProgram.testDiffPressure[4] = 10;
+		mWrite_flash();
+	}
+
 
 	xTaskCreate(indicationTask, "Blynk", 200, NULL, 1, NULL);
 	xTaskCreate(scanBtnsTask, "Btns", 200, NULL, 1, NULL);
@@ -104,6 +132,10 @@ void indicationTask(void *arguments){
 			}
 			case(TESTING):{
 				testing_led_blynk(controllerState.currentStep);
+				break;
+			}
+			case(ALIGNING):{
+				aligning_led_blynk(controllerState.currentStep);
 				break;
 			}
 			case(STEP_ERROR):{
@@ -176,6 +208,43 @@ void testing_led_blynk(uint8_t curStep){
 			LED_STEP_3_ON;
 			LED_STEP_4_ON;
 			HAL_GPIO_TogglePin(LED_STEP_5_PORT, LED_STEP_5_PIN);
+			break;
+		}
+		default:{
+			  LED_STEP_1_OFF;
+			  LED_STEP_2_OFF;
+			  LED_STEP_3_OFF;
+			  LED_STEP_4_OFF;
+			  LED_STEP_5_OFF;
+			  LED_ERR_1_OFF;
+			  LED_ERR_2_OFF;
+			  LED_ERR_3_OFF;
+			  LED_ERR_4_OFF;
+			  LED_ERR_5_OFF;
+		}
+	}
+}
+
+void aligning_led_blynk(uint8_t curStep){
+	switch(curStep){
+		case(1):{
+			LED_STEP_1_ON;
+			break;
+		}
+		case(2):{
+			LED_STEP_2_ON;
+			break;
+		}
+		case(3):{
+			LED_STEP_3_ON;
+			break;
+		}
+		case(4):{
+			LED_STEP_4_ON;
+			break;
+		}
+		case(5):{
+			LED_STEP_5_ON;
 			break;
 		}
 		default:{

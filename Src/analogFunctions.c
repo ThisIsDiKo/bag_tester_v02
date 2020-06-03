@@ -24,6 +24,7 @@ void scanAnalogInput(void *arguments){
 	uint8_t pArray = 0;
 	uint32_t sum = 0;
 	uint8_t i = 0;
+	StateMachine prevState = IDLE;
 
 	for(;;){
 		if (pArray == 10){
@@ -49,11 +50,21 @@ void scanAnalogInput(void *arguments){
 				symbolsToShow[1] = controllerState.valueToShow % 10;
 			}
 
-			if (controllerState.state == TESTING) {
+			if (controllerState.state == TESTING || controllerState.state == ALIGNING) {
 				//giving semaphore
 				xSemaphoreGive(xNewPressureSemaphore);
+				prevState = controllerState.state;
 			}
-
+			else if (prevState != controllerState.state && (prevState == TESTING || prevState == ALIGNING)){
+				if (aligninThreadHandle != NULL){
+					vTaskDelete(aligninThreadHandle);
+					aligninThreadHandle = NULL;
+				}
+				if (testingTreadHandle != NULL){
+					vTaskDelete(testingTreadHandle);
+					testingTreadHandle == NULL;
+				}
+			}
 		}
 		else{
 			array[pArray] = adcRawData;
