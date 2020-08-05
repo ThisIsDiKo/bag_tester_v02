@@ -55,15 +55,29 @@ void scanAnalogInput(void *arguments){
 				xSemaphoreGive(xNewPressureSemaphore);
 				prevState = controllerState.state;
 			}
-			else if (prevState != controllerState.state && (prevState == TESTING || prevState == ALIGNING)){
-				if (aligninThreadHandle != NULL){
-					vTaskDelete(aligninThreadHandle);
-					aligninThreadHandle = NULL;
+			else if (prevState != controllerState.state && (prevState == TESTING || prevState == ALIGNING)&&
+					(controllerState.state != STEP_ERROR && controllerState.state != TEST_ERROR)){
+				if (prevState == ALIGNING){
+					if (aligninThreadHandle != NULL){
+						vTaskDelete(aligninThreadHandle);
+						aligninThreadHandle = NULL;
+						VALVE_UP_OFF;
+						VALVE_DOWN_OFF;
+						controllerState.valveIsOpen = 0;
+					}
 				}
-				if (testingTreadHandle != NULL){
-					vTaskDelete(testingTreadHandle);
-					testingTreadHandle == NULL;
+
+				if (prevState == TESTING){
+					if (testingTreadHandle != NULL){
+						vTaskDelete(testingTreadHandle);
+						testingTreadHandle = NULL;
+					}
 				}
+
+				prevState = controllerState.state;
+			}
+			else{
+				prevState = controllerState.state;
 			}
 		}
 		else{

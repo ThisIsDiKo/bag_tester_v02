@@ -1,5 +1,5 @@
-modbusPollTask.c:38:6:xModbusPollTask	8	static
-modbusPollTask.c:51:1:eMBRegInputCB	16	static
-modbusPollTask.c:106:1:eMBRegHoldingCB	20	static
-modbusPollTask.c:164:1:eMBRegCoilsCB	24	static
-modbusPollTask.c:217:1:eMBRegDiscreteCB	0	static
+modbusPollTask.c:43:6:xModbusPollTask	8	static
+modbusPollTask.c:57:1:eMBRegInputCB	12	static
+modbusPollTask.c:86:1:eMBRegHoldingCB	16	static
+modbusPollTask.c:192:1:eMBRegCoilsCB	24	static
+modbusPollTask.c:245:1:eMBRegDiscreteCB	0	static

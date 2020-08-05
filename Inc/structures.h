@@ -30,7 +30,11 @@ typedef struct{
 	uint16_t testPressure[5];
 	uint16_t testTime[5];
 	uint16_t testDiffPressure[5];
+	uint16_t delayAfterAligningSeconds;
+	uint16_t maxNumberOfBadPressure;
+	uint16_t checkingDelaySeconds;
 	uint16_t temp;
+
 }ControllerTestProgram;
 
 typedef struct{
@@ -39,6 +43,9 @@ typedef struct{
 	uint16_t testDiffPressure;
 	uint16_t testStartPressure;
 	uint64_t timePassed;
+	uint32_t delayAfterAligningMs;
+	uint32_t checkingDelayMs;
+	uint16_t maxNumberOfBadPressure;
 }TestingParams;
 
 extern ControllerState controllerState;

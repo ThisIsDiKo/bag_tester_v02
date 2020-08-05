@@ -38,7 +38,7 @@ void xAligningTask(void *arguments){
 			if (currentTry > MAX_ALIGNING_TRIES){
 
 				//wait
-				vTaskDelay(DELAY_AFTER_ALIGNING_MS);
+				vTaskDelay(testingParams.delayAfterAligningMs);
 				//create task
 				testingParams.testStartPressure = controllerState.sensorData;
 				testingParams.timePassed = 0;

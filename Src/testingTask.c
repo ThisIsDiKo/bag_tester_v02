@@ -33,21 +33,21 @@ void xTestingTask(void *arguments){
 		xStatus = xSemaphoreTake(xNewPressureSemaphore, portMAX_DELAY);
 		if (xStatus == pdPASS){
 
-			vTaskDelay(CHECKING_DELAY_MS);
+			vTaskDelay(testingParams.checkingDelayMs);
 
 			deltaPressure = testingParams.testStartPressure - controllerState.sensorData;
 
 			if (deltaPressure > testingParams.testDiffPressure){
 				badPressTicksCounter += 1;
 
-				if (badPressTicksCounter > MAX_BAD_PRESSURE_TICKS){
+				if (badPressTicksCounter > testingParams.maxNumberOfBadPressure){
 					all_led_off();
 					controllerState.state = STEP_ERROR;
 					vTaskDelete(NULL);
 				}
 			}
 			else{
-				testingParams.timePassed += CHECKING_DELAY_MS;
+				testingParams.timePassed += testingParams.checkingDelayMs;
 				if (testingParams.timePassed > testingParams.testTimeMS){
 					//check next test
 					controllerState.currentStep = calculate_test_params(controllerState.currentStep);

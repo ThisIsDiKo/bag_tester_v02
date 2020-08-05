@@ -1,5 +1,5 @@
 utils.c:12:6:all_led_off	16	static
-utils.c:48:7:adc_to_bar	8	static
-utils.c:61:10:bar_to_adc	8	static
-utils.c:74:10:bar_to_adc_diff	8	static
+utils.c:71:7:adc_to_bar	8	static
+utils.c:84:10:bar_to_adc	8	static
+utils.c:97:10:bar_to_adc_diff	8	static
 utils.c:26:9:calculate_test_params	24	static

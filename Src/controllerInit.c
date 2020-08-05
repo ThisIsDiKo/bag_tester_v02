@@ -108,6 +108,10 @@ void controller_init(){
 		testProgram.testPressure[4] = 20;
 		testProgram.testTime[4] = 10;
 		testProgram.testDiffPressure[4] = 10;
+
+		testProgram.checkingDelaySeconds = 10;
+		testProgram.delayAfterAligningSeconds = 60;
+		testProgram.maxNumberOfBadPressure = 12;
 		mWrite_flash();
 	}
 
@@ -115,7 +119,7 @@ void controller_init(){
 	xTaskCreate(indicationTask, "Blynk", 200, NULL, 1, NULL);
 	xTaskCreate(scanBtnsTask, "Btns", 200, NULL, 1, NULL);
 	xTaskCreate(scanAnalogInput, "analog", 200, NULL, 1, NULL);
-	xTaskCreate(xModbusPollTask, "modbus", 300, NULL, 1, NULL);
+	xTaskCreate(xModbusPollTask, "modbus", 400, NULL, 1, NULL);
 
 }
 

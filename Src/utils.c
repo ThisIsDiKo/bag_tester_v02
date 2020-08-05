@@ -38,6 +38,29 @@ uint8_t calculate_test_params(uint8_t start){
 				testingParams.testDiffPressure = bar_to_adc_diff(testProgram.testDiffPressure[i]);
 				testingParams.testPressure = bar_to_adc(testProgram.testPressure[i]);
 				testingParams.testTimeMS = testProgram.testTime[i] * 60 * 1000;
+
+
+				if (testProgram.checkingDelaySeconds > 0 && testProgram.checkingDelaySeconds < 300){
+					testingParams.checkingDelayMs = testProgram.checkingDelaySeconds * 1000;
+				}
+				else{
+					testingParams.checkingDelayMs = 20000;
+				}
+
+				if (testProgram.delayAfterAligningSeconds > 0 && testProgram.delayAfterAligningSeconds < 1500){
+					testingParams.delayAfterAligningMs = testProgram.delayAfterAligningSeconds * 1000;
+				}
+				else{
+					testingParams.delayAfterAligningMs = 300000;
+				}
+
+				if (testProgram.maxNumberOfBadPressure > 0 && testProgram.maxNumberOfBadPressure < 2000){
+					testingParams.maxNumberOfBadPressure = testProgram.maxNumberOfBadPressure;
+				}
+				else{
+					testingParams.maxNumberOfBadPressure = 6;
+				}
+
 				return legalStep;
 			}
 		}
@@ -79,6 +102,6 @@ uint16_t bar_to_adc_diff(uint16_t bar){
 	adcVal = (uint16_t)(k * valInBar);
 
 	if (adcVal > 3350) return 3350;
-	else if (adcVal < 313) return 313;
+	else if (adcVal < 1) return 1;
 	else return adcVal;
 }

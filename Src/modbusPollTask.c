@@ -19,10 +19,13 @@
 
 
 #define REG_STATE_START 1000
-#define REG_STATE_NREGS 4
+#define REG_STATE_NREGS 3
 
 #define REG_TEST_PROGRAM_START 2000
-#define REG_TEST_PROGRAM_NREGS 16
+#define REG_TEST_PROGRAM_NREGS 18
+
+#define TIME_TEST_PROGRAM_START 3000
+#define TIME_TEST_PROGRAM_NREGS 3
 
 //static USHORT   usRegInputStart = REG_INPUT_START;
 
@@ -35,11 +38,14 @@ static unsigned char ucRegCoilsBuf[REG_COILS_SIZE / 8];
 
 uint8_t needToWriteFlash = 0;
 
+uint16_t modbusArray[REG_TEST_PROGRAM_NREGS] = {0};
+
 void xModbusPollTask(void *arguments){
 	for(;;){
 		( void )eMBPoll(  );
 		vTaskDelay(50);
 		if (needToWriteFlash){
+			controllerState.state = IDLE;
 			mWrite_flash();
 			needToWriteFlash = 0;
 		}
@@ -67,32 +73,6 @@ eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
             iRegIndex++;
             usNRegs--;
         }
-
-//        while( usNRegs > 0 )
-//        {
-//            *pucRegBuffer++ =
-//                ( unsigned char )( controllerState.dataToSend[iRegIndex] >> 8 );
-//            *pucRegBuffer++ =
-//                ( unsigned char )( controllerState.dataToSend[iRegIndex] & 0xFF );
-//            iRegIndex++;
-//            usNRegs--;
-//        }
-    }
-    else if( ( usAddress == REG_TEST_PROGRAM_START ) && ( usAddress + usNRegs <= REG_TEST_PROGRAM_START + REG_TEST_PROGRAM_NREGS ) )
-    {
-        iRegIndex = ( int )( usAddress - REG_TEST_PROGRAM_START );
-        usNRegs = usNRegs / 3;
-        while( usNRegs > 0 )
-        {
-            *pucRegBuffer++ = ( unsigned char )( testProgram.testPressure[iRegIndex] >> 8 );
-            *pucRegBuffer++ = ( unsigned char )( testProgram.testPressure[iRegIndex] & 0xFF );
-            *pucRegBuffer++ = ( unsigned char )( testProgram.testTime[iRegIndex] >> 8 );
-            *pucRegBuffer++ = ( unsigned char )( testProgram.testTime[iRegIndex] & 0xFF );
-            *pucRegBuffer++ = ( unsigned char )( testProgram.testDiffPressure[iRegIndex] >> 8 );
-            *pucRegBuffer++ = ( unsigned char )( testProgram.testDiffPressure[iRegIndex] & 0xFF );
-            iRegIndex++;
-            usNRegs--;
-        }
     }
     else
     {
@@ -109,49 +89,97 @@ eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs,
     eMBErrorCode    eStatus = MB_ENOERR;
     int8_t         iRegIndex;
 
+    modbusArray[0] = testProgram.testPressure[0];
+    modbusArray[1] = testProgram.testTime[0];
+    modbusArray[2] = testProgram.testDiffPressure[0];
+
+    modbusArray[3] = testProgram.testPressure[1];
+    modbusArray[4] = testProgram.testTime[1];
+    modbusArray[5] = testProgram.testDiffPressure[1];
+
+    modbusArray[6] = testProgram.testPressure[2];
+    modbusArray[7] = testProgram.testTime[2];
+    modbusArray[8] = testProgram.testDiffPressure[2];
+
+    modbusArray[9] = testProgram.testPressure[3];
+    modbusArray[10] = testProgram.testTime[3];
+    modbusArray[11] = testProgram.testDiffPressure[3];
+
+    modbusArray[12] = testProgram.testPressure[4];
+    modbusArray[13] = testProgram.testTime[4];
+    modbusArray[14] = testProgram.testDiffPressure[4];
+
+    modbusArray[15] = testProgram.delayAfterAligningSeconds;
+    modbusArray[16] = testProgram.checkingDelaySeconds;
+    modbusArray[17] = testProgram.maxNumberOfBadPressure;
+
     if( ( usAddress == REG_TEST_PROGRAM_START ) && ( usAddress + usNRegs <= REG_TEST_PROGRAM_START + REG_TEST_PROGRAM_NREGS ) )
     {
         iRegIndex = ( int )( usAddress - REG_TEST_PROGRAM_START );
-        usNRegs = usNRegs / 3;
 
         switch (eMode){
 			case MB_REG_READ:{
 		        while( usNRegs > 0 )
 		        {
-		            *pucRegBuffer++ = ( unsigned char )( testProgram.testPressure[iRegIndex] >> 8 );
-		            *pucRegBuffer++ = ( unsigned char )( testProgram.testPressure[iRegIndex] & 0xFF );
-		            *pucRegBuffer++ = ( unsigned char )( testProgram.testTime[iRegIndex] >> 8 );
-		            *pucRegBuffer++ = ( unsigned char )( testProgram.testTime[iRegIndex] & 0xFF );
-		            *pucRegBuffer++ = ( unsigned char )( testProgram.testDiffPressure[iRegIndex] >> 8 );
-		            *pucRegBuffer++ = ( unsigned char )( testProgram.testDiffPressure[iRegIndex] & 0xFF );
+		            *pucRegBuffer++ = ( unsigned char )( modbusArray[iRegIndex] >> 8 );
+		            *pucRegBuffer++ = ( unsigned char )( modbusArray[iRegIndex] & 0xFF );
 		            iRegIndex++;
 		            usNRegs--;
 		        }
 		        break;
 			}
 			case MB_REG_WRITE:{
-				while( usNRegs > 0 ){
+				if (usNRegs > 17){
 					//testProgram.testPressure[iRegIndex] = (uint16_t) ((*pucRegBuffer) << 8) + (*(pucRegBuffer + 1));
-					testProgram.testPressure[iRegIndex] = (uint16_t) ((*pucRegBuffer++) << 8);
-					testProgram.testPressure[iRegIndex] += *pucRegBuffer++;
-//					pucRegBuffer++;
-//					pucRegBuffer++;
-					testProgram.testTime[iRegIndex] = (uint16_t) ((*pucRegBuffer) << 8) + (*(pucRegBuffer + 1));
-					pucRegBuffer++;
-					pucRegBuffer++;
-					testProgram.testDiffPressure[iRegIndex] = (uint16_t) ((*pucRegBuffer) << 8) + (*(pucRegBuffer + 1));
-					pucRegBuffer++;
-					pucRegBuffer++;
+					testProgram.testPressure[0] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testPressure[0] += *pucRegBuffer++;
+					testProgram.testTime[0] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testTime[0] += *pucRegBuffer++;
+					testProgram.testDiffPressure[0] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testDiffPressure[0] += *pucRegBuffer++;
+
+					testProgram.testPressure[1] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testPressure[1] += *pucRegBuffer++;
+					testProgram.testTime[1] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testTime[1] += *pucRegBuffer++;
+					testProgram.testDiffPressure[1] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testDiffPressure[1] += *pucRegBuffer++;
+
+					testProgram.testPressure[2] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testPressure[2] += *pucRegBuffer++;
+					testProgram.testTime[2] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testTime[2] += *pucRegBuffer++;
+					testProgram.testDiffPressure[2] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testDiffPressure[2] += *pucRegBuffer++;
+
+					testProgram.testPressure[3] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testPressure[3] += *pucRegBuffer++;
+					testProgram.testTime[3] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testTime[3] += *pucRegBuffer++;
+					testProgram.testDiffPressure[3] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testDiffPressure[3] += *pucRegBuffer++;
+
+					testProgram.testPressure[4] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testPressure[4] += *pucRegBuffer++;
+					testProgram.testTime[4] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testTime[4] += *pucRegBuffer++;
+					testProgram.testDiffPressure[4] = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.testDiffPressure[4] += *pucRegBuffer++;
+
+					testProgram.delayAfterAligningSeconds = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.delayAfterAligningSeconds += *pucRegBuffer++;
+					testProgram.checkingDelaySeconds = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.checkingDelaySeconds += *pucRegBuffer++;
+					testProgram.maxNumberOfBadPressure = (uint16_t) ((*pucRegBuffer++) << 8);
+					testProgram.maxNumberOfBadPressure += *pucRegBuffer++;
+
 		            iRegIndex++;
 		            usNRegs--;
 				}
 				needToWriteFlash = 1;
 				break;
 			}
-
         }
-
-
     }
     else{
     	eStatus = MB_ENOREG;
